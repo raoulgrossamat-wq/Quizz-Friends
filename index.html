@@ -425,8 +425,8 @@
     const INITIAL_QUESTIONS = [
       // GÉNÉRATION ORIGINALE (2012-2022) - 1 à 25
       { question: "En quelle année la gamme LEGO Friends avec les mini-poupées a-t-elle été lancée ?", options: ["2012", "2010", "2014", "2008"], correct: 0, category: "Histoire LEGO", explanation: "La gamme a été introduite mondialement début 2012, révolutionnant le public cible de LEGO.", mediaUrl: "https://www.youtube.com/watch?v=kYv9y7qGqR4" },
-      { question: "Parmi les 5 amies originales, qui est la scientifique et inventrice ?", options: ["Olivia", "Stephanie", "Mia", "Emma"], correct: 0, category: "Génération Originale", explanation: "Olivia adore la robotique, les sciences et l'informatique. Elle a même créé le robot Zobo.", mediaUrl: "https://placehold.co/600x400/fbcfe8/ec4899?text=Olivia+la+Scientifique" },
-      { question: "Quel est le nom du célèbre robot de compagnie créé par Olivia ?", options: ["Zobo", "Roby", "Gizmo", "Sprocket"], correct: 0, category: "Personnages", explanation: "Zobo est apparu dans de nombreux sets aux côtés d'Olivia." },
+      { question: "Parmi les 5 amies originales, qui est la scientifique et inventrice ?", options: ["Olivia", "Stephanie", "Mia", "Emma"], correct: 0, category: "Génération Originale", explanation: "Olivia adore la robotique, les sciences et l'informatique. Elle a même créé le robot Zobo.", mediaUrl: "https://images.brickset.com/minifigs/large/frnd012.jpg" },
+      { question: "Quel est le nom du célèbre robot de compagnie créé par Olivia ?", options: ["Zobo", "Roby", "Gizmo", "Sprocket"], correct: 0, category: "Personnages", explanation: "Zobo est apparu dans de nombreux sets aux côtés d'Olivia.", mediaUrl: "https://www.youtube.com/watch?v=Xh0l05nE-uU" },
       { question: "Quelle fille du groupe original est passionnée par les animaux et la nature, arborant des cheveux roux ?", options: ["Mia", "Stephanie", "Andrea", "Emma"], correct: 0, category: "Génération Originale", explanation: "Mia est l'aventurière amoureuse de la nature et des animaux, et travaille souvent à la clinique vétérinaire." },
       { question: "Quelle est la passion principale de Stephanie (génération 1) ?", options: ["Le sport et la pâtisserie", "Le chant et la danse", "Le dessin et la mode", "L'informatique"], correct: 0, category: "Génération Originale", explanation: "Stephanie est hyperactive, très organisée, excellente pâtissière et sportive." },
       { question: "Qui est la chanteuse talentueuse et dramatique du premier groupe de 5 amies ?", options: ["Andrea", "Emma", "Olivia", "Mia"], correct: 0, category: "Génération Originale", explanation: "Andrea rêve de devenir une star, elle adore chanter et se produire sur scène." },
@@ -978,22 +978,7 @@
         const feedbackMedia = document.getElementById('feedbackMedia');
 
         feedbackContainer.classList.remove('hidden');
-        feedbackMedia.innerHTML = ''; // Réinitialiser le média précédent
-
-        // GESTION DU MEDIA (YOUTUBE OU IMAGE)
-        if (q.mediaUrl) {
-          let mediaHtml = '';
-          // Détection d'un lien YouTube
-          const ytMatch = q.mediaUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-          if (ytMatch && ytMatch[1]) {
-            // Création du lecteur vidéo intégré
-            mediaHtml = `<iframe class="w-full aspect-video rounded-xl shadow-md border border-slate-200" src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-          } else {
-            // Création d'une balise image classique
-            mediaHtml = `<img src="${q.mediaUrl}" alt="Illustration" class="max-h-56 w-auto object-contain rounded-xl shadow-md border border-slate-200" onerror="this.style.display='none'">`;
-          }
-          feedbackMedia.innerHTML = mediaHtml;
-        }
+        feedbackMedia.innerHTML = ''; 
 
         if (isTimeout) {
           feedbackContainer.className = "mt-8 p-5 rounded-2xl border-2 border-orange-200 bg-orange-50 text-left space-y-3";
@@ -1009,22 +994,22 @@
           feedbackTitle.className = "font-friends text-2xl text-red-500";
         }
 
-        // Affichage du Média (YouTube ou Image)
+        // GESTION UNIQUE ET CORRIGÉE DU MEDIA (YOUTUBE OU IMAGE)
         if (q.mediaUrl) {
           feedbackMedia.classList.remove('hidden');
-          if (q.mediaUrl.includes('youtube.com') || q.mediaUrl.includes('youtu.be')) {
-            // Extraction de l'ID de la vidéo YouTube
-            let videoId = '';
-            if (q.mediaUrl.includes('v=')) videoId = q.mediaUrl.split('v=')[1].substring(0, 11);
-            else if (q.mediaUrl.includes('youtu.be/')) videoId = q.mediaUrl.split('youtu.be/')[1].substring(0, 11);
-            
-            if (videoId) {
-              feedbackMedia.innerHTML = `<iframe class="w-full max-w-md h-48 md:h-64 mx-auto rounded-xl shadow-md border-2 border-slate-200" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            }
+          // Détection d'un lien YouTube plus robuste
+          const ytMatch = q.mediaUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+          
+          if (ytMatch && ytMatch[1]) {
+            // Création du lecteur vidéo intégré avec les bonnes permissions
+            const videoId = ytMatch[1];
+            feedbackMedia.innerHTML = `<iframe class="w-full max-w-md h-48 md:h-64 mx-auto rounded-xl shadow-md border-2 border-slate-200" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
           } else {
             // C'est une image classique
-            feedbackMedia.innerHTML = `<img src="${q.mediaUrl}" alt="Illustration" class="max-h-48 md:max-h-64 mx-auto object-contain rounded-xl shadow-md border-2 border-slate-200">`;
+            feedbackMedia.innerHTML = `<img src="${q.mediaUrl}" alt="Illustration" class="max-h-48 md:max-h-64 mx-auto object-contain rounded-xl shadow-md border-2 border-slate-200" onerror="this.src='https://placehold.co/600x400/fbcfe8/ec4899?text=Image+Introuvable'">`;
           }
+        } else {
+          feedbackMedia.classList.add('hidden');
         }
 
         feedbackExplanation.innerText = q.explanation || "L'important c'est de participer et de s'amuser !";
