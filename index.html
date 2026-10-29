@@ -816,7 +816,44 @@
           this.startTimer();
         }
       }
+useJoker() {
+        if (this.hasAnswered) return; // Trop tard si on a déjà répondu
+        
+        const currentEntity = this.gameMode === 'solo' ? 'solo' : this.currentTurn;
+        if (this.jokers[currentEntity] <= 0) return; // Joker déjà utilisé
 
+        // On consomme le Joker
+        this.jokers[currentEntity] = 0;
+        this.sound.playSparkle(); // Petit bruit magique
+
+        // On grise le bouton immédiatement
+        const jokerBtn = document.getElementById('jokerBtn');
+        jokerBtn.classList.add('opacity-40', 'cursor-not-allowed', 'scale-95', 'grayscale');
+        jokerBtn.classList.remove('hover:scale-105');
+        jokerBtn.disabled = true;
+
+        // On récupère la bonne réponse
+        const q = this.activeQuestions[this.currentIndex];
+        const correctText = q.options[q.correct];
+        const buttons = Array.from(document.querySelectorAll('#optionsGrid button'));
+        
+        // On isole les mauvaises réponses
+        const wrongButtons = buttons.filter(btn => {
+          const text = btn.querySelector('.font-bold').innerText;
+          return text !== correctText;
+        });
+
+        // On en choisit 2 au hasard parmi les 3 fausses
+        wrongButtons.sort(() => 0.5 - Math.random());
+        const toDisable = wrongButtons.slice(0, 2);
+
+        // On les désactive visuellement (elles deviennent semi-transparentes)
+        toDisable.forEach(btn => {
+          btn.disabled = true;
+          btn.classList.add('opacity-20');
+          btn.classList.remove('hover:bg-pink-50', 'hover:border-pink-300');
+        });
+      }
       startTimer() {
         this.timerSeconds = 15;
         const box = document.getElementById('timerBox');
