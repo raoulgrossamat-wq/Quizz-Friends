@@ -188,8 +188,14 @@
           <span id="uiSoloName" class="font-friends text-lg text-slate-700">Points</span> <span class="mx-1 opacity-50">|</span> <span id="soloScore" class="text-pink-500 font-friends text-2xl">0</span> pts
         </div>
 
-        <!-- Timer Circle -->
-        <div id="timerContainer" class="flex items-center gap-2 font-friends">
+        <!-- Actions & Timer -->
+        <div id="timerContainer" class="flex items-center gap-3 font-friends">
+          <!-- JOKER 50/50 -->
+          <button id="jokerBtn" onclick="app.useJoker()" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 hover:from-purple-500 hover:to-pink-500 text-white text-lg shadow-md transition transform hover:scale-105 border-2 border-white" title="Joker 50/50 (1 par partie)">
+            50/50
+          </button>
+          
+          <!-- Timer Circle -->
           <div id="timerBox" class="w-12 h-12 rounded-full bg-white border-4 border-pink-400 flex items-center justify-center text-pink-500 text-2xl transition-colors shadow-sm">
             15
           </div>
@@ -621,6 +627,7 @@
         this.timerSeconds = 15;
         this.timerInterval = null;
         this.hasAnswered = false;
+        this.jokers = { solo: 1, teamA: 1, teamB: 1 };
 
         this.initUI();
       }
@@ -714,6 +721,7 @@
         this.teamAScore = 0;
         this.teamBScore = 0;
         this.currentTurn = 'teamA';
+        this.jokers = { solo: 1, teamA: 1, teamB: 1 };
 
         if (this.gameMode === 'duel') {
           document.getElementById('duelHeaderWidget').classList.remove('hidden');
@@ -812,48 +820,61 @@
           grid.appendChild(btn);
         });
 
+        // Mise à jour de l'état du bouton Joker
+        const currentEntity = this.gameMode === 'solo' ? 'solo' : this.currentTurn;
+        const jokerBtn = document.getElementById('jokerBtn');
+        if (this.jokers[currentEntity] > 0) {
+          jokerBtn.disabled = false;
+          jokerBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'scale-95', 'grayscale');
+          jokerBtn.classList.add('hover:scale-105', 'hover:from-purple-500', 'hover:to-pink-500');
+        } else {
+          jokerBtn.disabled = true;
+          jokerBtn.classList.add('opacity-40', 'cursor-not-allowed', 'scale-95', 'grayscale');
+          jokerBtn.classList.remove('hover:scale-105', 'hover:from-purple-500', 'hover:to-pink-500');
+        }
+
         if (this.timerEnabled) {
           this.startTimer();
         }
       }
-useJoker() {
-        if (this.hasAnswered) return; // Trop tard si on a déjà répondu
+
+      useJoker() {
+        if (this.hasAnswered) return;
         
         const currentEntity = this.gameMode === 'solo' ? 'solo' : this.currentTurn;
         if (this.jokers[currentEntity] <= 0) return; // Joker déjà utilisé
 
-        // On consomme le Joker
+        // Consommer le Joker
         this.jokers[currentEntity] = 0;
-        this.sound.playSparkle(); // Petit bruit magique
+        this.sound.playSparkle(); // Bruit magique
 
-        // On grise le bouton immédiatement
+        // Griser le bouton
         const jokerBtn = document.getElementById('jokerBtn');
         jokerBtn.classList.add('opacity-40', 'cursor-not-allowed', 'scale-95', 'grayscale');
-        jokerBtn.classList.remove('hover:scale-105');
+        jokerBtn.classList.remove('hover:scale-105', 'hover:from-purple-500', 'hover:to-pink-500');
         jokerBtn.disabled = true;
 
-        // On récupère la bonne réponse
+        // Trouver les mauvaises réponses
         const q = this.activeQuestions[this.currentIndex];
         const correctText = q.options[q.correct];
         const buttons = Array.from(document.querySelectorAll('#optionsGrid button'));
         
-        // On isole les mauvaises réponses
         const wrongButtons = buttons.filter(btn => {
           const text = btn.querySelector('.font-bold').innerText;
           return text !== correctText;
         });
 
-        // On en choisit 2 au hasard parmi les 3 fausses
+        // En désactiver 2 au hasard
         wrongButtons.sort(() => 0.5 - Math.random());
         const toDisable = wrongButtons.slice(0, 2);
 
-        // On les désactive visuellement (elles deviennent semi-transparentes)
         toDisable.forEach(btn => {
           btn.disabled = true;
           btn.classList.add('opacity-20');
           btn.classList.remove('hover:bg-pink-50', 'hover:border-pink-300');
         });
       }
+
       startTimer() {
         this.timerSeconds = 15;
         const box = document.getElementById('timerBox');
