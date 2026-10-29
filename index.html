@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEGO Friends - Morning Brief Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Fredoka (Bubbly/Friends) & Nunito (Readable/Soft) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #fdf4ff; /* bg-fuchsia-50 */
+      /* Background pattern polka dots */
+      background-image: radial-gradient(#fbcfe8 2px, transparent 2px);
+      background-size: 30px 30px;
+    }
+
+    .font-friends {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    @keyframes pulseTimer {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .animate-danger-pulse {
+      animation: pulseTimer 0.6s infinite ease-in-out;
+    }
+    
+    /* Boutons de réponses */
+    .option-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .option-btn:active {
+      transform: scale(0.97);
+    }
+    
+    /* Custom Scrollbar for Modal */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #fdf2f8; 
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #f472b6; 
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #db2777; 
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between selection:bg-pink-300 selection:text-pink-900">
+
+  <!-- HEADER -->
+  <header class="w-full bg-white/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3 shadow-sm border-b border-pink-100">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer group" onclick="app.showScreen('welcome')">
+        <!-- LEGO Brick Icon (Pink) -->
+        <div class="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center font-black text-white shadow-md border border-pink-400 group-hover:bg-pink-400 transition-colors">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+            <path d="M19 6V5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v1H9V5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-3zM7 5a1 1 0 0 1 2 0v1H7V5zm8 0a1 1 0 0 1 2 0v1h-2V5z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="text-[10px] sm:text-xs uppercase font-extrabold tracking-widest text-pink-500 block">LEGO Store Brief</span>
+          <h1 class="text-2xl md:text-3xl font-friends font-bold tracking-tight text-slate-800 flex items-center gap-2 leading-none mt-1">
+            FRIENDS <span class="bg-gradient-to-r from-pink-400 to-purple-400 text-white px-2 py-0.5 rounded-md text-sm md:text-base leading-none font-sans font-black tracking-normal shadow-sm">QUIZ</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Header actions -->
+      <div class="flex items-center gap-2">
+        <button onclick="app.showLeaderboard()" class="px-3 py-2 rounded-xl bg-white hover:bg-pink-50 text-xs md:text-sm font-bold border border-pink-200 transition flex items-center gap-1.5 text-slate-600 hover:text-pink-600 shadow-sm">
+          🏆 <span class="hidden sm:inline">Palmarès</span>
+        </button>
+        <button id="soundToggleBtn" onclick="app.toggleSound()" class="p-2.5 rounded-xl bg-white hover:bg-pink-50 border border-pink-200 transition text-pink-500 shadow-sm" title="Activer / Couper la musique">
+          <svg id="soundIconOn" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+          </svg>
+          <svg id="soundIconOff" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z m12.414-4.586L21 7.414M18 10.414l3 3"/>
+          </svg>
+        </button>
+        <button onclick="app.openCustomModal()" class="px-3 py-2 rounded-xl bg-white hover:bg-purple-50 text-xs md:text-sm font-bold border border-purple-200 transition flex items-center gap-1.5 text-slate-600 hover:text-purple-600 shadow-sm">
+          <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span class="hidden sm:inline">Nouveaux</span> Secrets
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow flex items-center justify-center p-4 max-w-4xl w-full mx-auto relative z-10">
+
+    <!-- SCREEN 1: ACCUEIL & CHOIX DU MODE -->
+    <section id="screen-welcome" class="w-full text-center space-y-8 py-6">
+      <div class="space-y-3">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-pink-200 text-pink-500 text-xs uppercase tracking-wider font-bold shadow-sm">
+          🦋 BIENVENUE À HEARTLAKE CITY !
+        </div>
+        <h2 class="text-5xl md:text-7xl font-friends text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-teal-400 drop-shadow-sm pb-2">
+          LE GRAND QUIZ
+        </h2>
+        <p class="text-slate-600 max-w-lg mx-auto text-sm md:text-base font-semibold">
+          Révisez vos classiques et découvrez la nouvelle génération avant l'ouverture de la boutique !
+        </p>
+      </div>
+
+      <!-- Sélection du mode -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-left max-w-2xl mx-auto">
+        <!-- Mode Solo / Flash -->
+        <div onclick="app.openNameSetup('solo')" class="group relative bg-white hover:bg-pink-50 border-2 border-pink-100 hover:border-pink-300 p-6 rounded-3xl cursor-pointer transition duration-300 transform hover:-translate-y-1 shadow-lg shadow-pink-100/50">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-pink-100 text-pink-500 flex items-center justify-center font-bold text-2xl border border-pink-200">
+              🌟
+            </div>
+            <span class="text-xs px-3 py-1 rounded-full bg-pink-100 text-pink-600 font-bold">Entre Amis</span>
+          </div>
+          <h3 class="text-2xl font-friends text-slate-800 group-hover:text-pink-600 transition mb-2">Quiz Collectif / Solo</h3>
+          <p class="text-sm text-slate-500 font-medium">Idéal pour le brief d'équipe sur grand écran : répondez tous ensemble !</p>
+        </div>
+
+        <!-- Mode Duel Équipes -->
+        <div onclick="app.openNameSetup('duel')" class="group relative bg-white hover:bg-teal-50 border-2 border-teal-100 hover:border-teal-300 p-6 rounded-3xl cursor-pointer transition duration-300 transform hover:-translate-y-1 shadow-lg shadow-teal-100/50">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-500 flex items-center justify-center font-bold text-2xl border border-teal-200">
+              🎨
+            </div>
+            <span class="text-xs px-3 py-1 rounded-full bg-teal-100 text-teal-700 font-bold">Grand Défi</span>
+          </div>
+          <h3 class="text-2xl font-friends text-slate-800 group-hover:text-teal-600 transition mb-2">Duel par Équipes</h3>
+          <p class="text-sm text-slate-500 font-medium">Divisez le magasin en deux équipes et affrontez-vous à tour de rôle.</p>
+        </div>
+      </div>
+
+      <!-- Quick Settings -->
+      <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500 pt-4 font-semibold">
+        <label class="flex items-center gap-2 cursor-pointer bg-white px-4 py-2 rounded-2xl border border-slate-200 hover:bg-slate-50 transition shadow-sm">
+          <input type="checkbox" id="timerEnabledCheck" checked class="w-4 h-4 text-pink-500 accent-pink-500 rounded">
+          <span>Chronomètre de 15s</span>
+        </label>
+        <span class="text-pink-300 hidden sm:inline">•</span>
+        <div class="bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+          Base : <span id="poolCountText" class="text-purple-500 font-bold">100</span> questions
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: QUESTION EN COURS -->
+    <section id="screen-quiz" class="w-full hidden space-y-6">
+
+      <!-- Barre d'état (Scores, Tour, Minuteur) -->
+      <div class="bg-white/90 backdrop-blur-md rounded-3xl p-4 border-2 border-pink-100 flex flex-wrap items-center justify-between gap-4 shadow-xl shadow-pink-100/50">
+        <!-- Info progression -->
+        <div class="flex items-center gap-3">
+          <span class="text-sm px-3 py-1 rounded-lg bg-pink-100 text-pink-600 font-friends font-bold" id="currentRoundBadge">
+            Q1 / 10
+          </span>
+          <span class="text-xs font-bold px-3 py-1 rounded-lg text-white shadow-sm" id="categoryBadge">
+            L'Univers Friends
+          </span>
+        </div>
+
+        <!-- Mode Duel Status -->
+        <div id="duelHeaderWidget" class="hidden flex items-center gap-3 text-xs font-bold">
+          <div id="teamAStatus" class="px-3 py-1.5 rounded-xl border-2 transition-all">
+            <span class="font-friends text-lg" id="uiTeamAName">ÉQUIPE 1</span> <span class="mx-1 opacity-50">|</span> <span id="teamAScore" class="text-base">0</span>
+          </div>
+          <span class="text-slate-300 font-friends text-xl">VS</span>
+          <div id="teamBStatus" class="px-3 py-1.5 rounded-xl border-2 transition-all">
+            <span class="font-friends text-lg" id="uiTeamBName">ÉQUIPE 2</span> <span class="mx-1 opacity-50">|</span> <span id="teamBScore" class="text-base">0</span>
+          </div>
+        </div>
+
+        <!-- Solo Score -->
+        <div id="soloHeaderWidget" class="text-sm font-bold text-slate-500 bg-slate-50 px-4 py-1.5 rounded-xl border border-slate-200">
+          <span id="uiSoloName" class="font-friends text-lg text-slate-700">Points</span> <span class="mx-1 opacity-50">|</span> <span id="soloScore" class="text-pink-500 font-friends text-2xl">0</span> pts
+        </div>
+
+        <!-- Timer Circle -->
+        <div id="timerContainer" class="flex items-center gap-2 font-friends">
+          <div id="timerBox" class="w-12 h-12 rounded-full bg-white border-4 border-pink-400 flex items-center justify-center text-pink-500 text-2xl transition-colors shadow-sm">
+            15
+          </div>
+        </div>
+      </div>
+
+      <!-- Turn Indicator for Duel Mode -->
+      <div id="teamTurnIndicator" class="hidden text-center py-1">
+        <p class="text-2xl font-friends text-slate-700" id="teamTurnText">
+          C'est au tour des <span class="text-pink-500">ÉTOILES</span> !
+        </p>
+      </div>
+
+      <!-- Question Card -->
+      <div class="bg-white border-2 border-pink-100 rounded-[2rem] p-6 md:p-8 relative overflow-hidden shadow-2xl shadow-pink-200/40">
+        <!-- Bandeau décoratif floral -->
+        <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-pink-400 via-purple-400 to-teal-400"></div>
+
+        <div class="min-h-[110px] flex items-center justify-center text-center mt-4">
+          <h3 id="questionText" class="text-xl md:text-3xl font-friends text-slate-800 leading-snug">
+            Chargement de la question...
+          </h3>
+        </div>
+
+        <!-- Options Container -->
+        <div id="optionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+          <!-- Injecté dynamiquement -->
+        </div>
+
+        <!-- Feedback & Explication -->
+        <div id="feedbackContainer" class="hidden mt-8 p-5 rounded-2xl border-2 transition-all text-center space-y-3">
+          <div id="feedbackTitle" class="font-friends text-3xl tracking-wide"></div>
+          <p id="feedbackExplanation" class="text-base text-slate-600 font-medium"></p>
+          <button id="nextBtn" onclick="app.nextQuestion()" class="mt-4 px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-friends text-xl rounded-2xl transition shadow-lg shadow-pink-500/30 inline-flex items-center gap-2 transform hover:-translate-y-0.5">
+            <span>QUESTION SUIVANTE</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: RÉSULTATS / BILAN DU BRIEF -->
+    <section id="screen-results" class="w-full hidden text-center space-y-8 py-6">
+      <div class="space-y-3">
+        <div class="inline-block p-4 rounded-full bg-white border border-pink-200 text-5xl mb-2 shadow-sm" id="resultTrophyIcon">
+          🏆
+        </div>
+        <h2 id="resultMainTitle" class="text-5xl md:text-6xl font-friends text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 pb-2">
+          FIN DU QUIZ !
+        </h2>
+        <p id="resultSubtitle" class="text-slate-600 max-w-md mx-auto text-base font-semibold">
+          Voici le bilan de vos connaissances sur Heartlake City.
+        </p>
+      </div>
+
+      <!-- Bilan Card -->
+      <div class="bg-white border-2 border-pink-100 rounded-[2.5rem] p-6 md:p-10 max-w-xl mx-auto shadow-2xl shadow-pink-200/50 space-y-8 relative overflow-hidden">
+        
+        <div id="soloScoreDisplay" class="space-y-3 relative z-10">
+          <p class="text-xl text-slate-500 font-friends uppercase tracking-widest">Votre Score</p>
+          <div class="text-7xl font-friends text-pink-500 drop-shadow-sm" id="finalScoreVal">8 / 10</div>
+          <div class="mt-4 inline-block px-5 py-2 rounded-2xl bg-purple-100 text-purple-700 font-bold text-lg border border-purple-200" id="rankTitleBadge">Rang : Maire de la ville</div>
+        </div>
+
+        <div id="duelScoreDisplay" class="hidden space-y-6 relative z-10">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-6 rounded-3xl bg-pink-50 border-2 border-pink-200 shadow-inner">
+              <span id="finalUiTeamAName" class="text-xl font-friends text-pink-500 block mb-2">ÉQUIPE 1</span>
+              <span id="finalTeamAScore" class="text-6xl font-friends text-slate-800">0</span>
+            </div>
+            <div class="p-6 rounded-3xl bg-teal-50 border-2 border-teal-200 shadow-inner">
+              <span id="finalUiTeamBName" class="text-xl font-friends text-teal-600 block mb-2">ÉQUIPE 2</span>
+              <span id="finalTeamBScore" class="text-6xl font-friends text-slate-800">0</span>
+            </div>
+          </div>
+          <div id="duelWinnerText" class="text-2xl font-friends text-white tracking-wide bg-gradient-to-r from-pink-500 to-purple-500 py-3 rounded-2xl shadow-md">
+            L'équipe gagne !
+          </div>
+        </div>
+
+        <!-- Conseil / Punchline LEGO pour la journée -->
+        <div class="p-5 rounded-2xl bg-blue-50 border border-blue-100 text-left flex gap-4 items-center relative z-10">
+          <span class="text-4xl">💡</span>
+          <div class="text-sm md:text-base text-slate-700 font-medium">
+            <strong class="text-blue-600 block font-friends text-xl mb-1">PENSÉE DU JOUR :</strong>
+            <span id="dailyMotto">L'amitié est la plus grande des forces. Excellente journée à tous !</span>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4 relative z-10">
+          <button onclick="app.showScreen('welcome')" class="px-6 py-3.5 rounded-2xl bg-pink-500 hover:bg-pink-400 text-white font-friends text-xl transition shadow-lg shadow-pink-500/30 transform hover:-translate-y-0.5">
+            RETOUR ACCUEIL
+          </button>
+          <button onclick="app.restartWithSameSettings()" class="px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 font-friends text-xl border-2 border-slate-200 transition transform hover:-translate-y-0.5">
+            REJOUER
+          </button>
+          <button onclick="app.showLeaderboard()" class="px-6 py-3.5 rounded-2xl bg-purple-100 hover:bg-purple-200 text-purple-700 font-friends text-xl border border-purple-200 transition transform hover:-translate-y-0.5">
+            PALMARÈS
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: CLASSEMENT -->
+    <section id="screen-leaderboard" class="w-full hidden text-center space-y-8 py-6 relative z-10">
+      <div class="space-y-3">
+        <h2 class="text-5xl md:text-6xl font-friends text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 pb-2">
+          TABLEAU D'HONNEUR
+        </h2>
+        <p class="text-slate-600 max-w-md mx-auto text-base font-semibold">
+          Les meilleurs experts de Heartlake City du magasin.
+        </p>
+      </div>
+
+      <div class="bg-white border-2 border-pink-100 rounded-[2.5rem] p-6 md:p-8 max-w-2xl mx-auto shadow-2xl shadow-pink-200/40">
+        <!-- Onglets -->
+        <div class="flex gap-4 border-b-2 border-slate-100 mb-6 pb-2 justify-center font-friends text-2xl">
+          <button onclick="app.renderLeaderboardList('solo')" id="tabSolo" class="text-pink-500 border-b-4 border-pink-500 px-4 py-2 transition rounded-t-lg">MODES SOLOS</button>
+          <button onclick="app.renderLeaderboardList('duel')" id="tabDuel" class="text-slate-400 hover:text-slate-600 px-4 py-2 transition rounded-t-lg">DUELS D'ÉQUIPES</button>
+        </div>
+
+        <div id="leaderboardList" class="space-y-4 text-left">
+          <!-- Injecté dynamiquement -->
+        </div>
+        
+        <div class="mt-10 flex justify-center gap-4">
+          <button onclick="app.showScreen('welcome')" class="px-8 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-friends text-xl transition border border-slate-200">
+            RETOUR
+          </button>
+          <button onclick="app.clearLeaderboard()" class="px-5 py-3 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-bold text-sm border border-red-200 transition flex items-center">
+            Effacer l'historique
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: CHOIX DES NOMS -->
+  <div id="nameSetupModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border-2 border-pink-100 rounded-[2rem] max-w-md w-full p-8 space-y-6 shadow-2xl transform transition-all scale-100">
+      <div class="flex justify-between items-center pb-3 border-b border-pink-100">
+        <h3 class="text-3xl font-friends text-slate-800">C'est parti !</h3>
+        <button onclick="app.closeNameSetup()" class="text-slate-400 hover:text-pink-500 text-3xl font-bold leading-none transition">&times;</button>
+      </div>
+      
+      <form id="nameSetupForm" onsubmit="app.startWithNames(event)" class="space-y-5">
+        <div id="soloNameInput" class="space-y-2">
+          <label class="block text-slate-600 text-sm font-bold">Nom du participant (ou de l'équipe)</label>
+          <input type="text" id="participantName" placeholder="Ex: Olivia, Équipe Matin..." class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-slate-800 font-semibold focus:outline-none focus:border-pink-400 focus:bg-white transition">
+        </div>
+
+        <div id="duelNameInputs" class="space-y-5 hidden">
+          <div>
+            <label class="block text-pink-500 font-friends text-2xl mb-2">Équipe 1</label>
+            <input type="text" id="team1Name" value="Les Étoiles" class="w-full bg-pink-50/50 border-2 border-pink-200 rounded-xl p-3.5 text-slate-800 font-semibold focus:outline-none focus:border-pink-500 focus:bg-white transition">
+          </div>
+          <div>
+            <label class="block text-teal-600 font-friends text-2xl mb-2">Équipe 2</label>
+            <input type="text" id="team2Name" value="Les Cœurs" class="w-full bg-teal-50/50 border-2 border-teal-200 rounded-xl p-3.5 text-slate-800 font-semibold focus:outline-none focus:border-teal-500 focus:bg-white transition">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" onclick="app.closeNameSetup()" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-friends text-xl transition">ANNULER</button>
+          <button type="submit" class="px-6 py-3 rounded-xl bg-pink-500 hover:bg-pink-400 text-white font-friends text-xl shadow-md transition">COMMENCER</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AJOUT DE QUESTION -->
+  <div id="customModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border-2 border-purple-100 rounded-[2rem] max-w-lg w-full p-8 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b border-purple-100">
+        <h3 class="text-3xl font-friends text-purple-600">NOUVELLE QUESTION</h3>
+        <button onclick="app.closeCustomModal()" class="text-slate-400 hover:text-purple-500 text-3xl font-bold leading-none transition">&times;</button>
+      </div>
+      <form id="addQuestionForm" onsubmit="app.handleCustomQuestionSubmit(event)" class="space-y-4 text-sm font-semibold text-slate-700">
+        <div>
+          <label class="block mb-1.5">Intitulé de la question</label>
+          <textarea id="custQText" required rows="2" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 focus:border-purple-400 focus:bg-white focus:outline-none transition" placeholder="Ex: Quel animal accompagne souvent Autumn ?"></textarea>
+        </div>
+        <div>
+          <label class="block text-green-600 mb-1.5">Bonne réponse</label>
+          <input type="text" id="custQCorrect" required class="w-full bg-green-50 border-2 border-green-200 rounded-xl p-3 focus:border-green-400 focus:bg-white focus:outline-none transition" placeholder="Ex: Un veau / Un chien">
+        </div>
+        <div class="space-y-3">
+          <label class="block text-red-500">Mauvaises réponses</label>
+          <input type="text" id="custQWrong1" required class="w-full bg-red-50 border-2 border-red-200 rounded-xl p-3 focus:border-red-400 focus:bg-white focus:outline-none transition" placeholder="Fausse réponse 1">
+          <input type="text" id="custQWrong2" class="w-full bg-red-50 border-2 border-red-200 rounded-xl p-3 focus:border-red-400 focus:bg-white focus:outline-none transition" placeholder="Fausse réponse 2 (Optionnelle)">
+          <input type="text" id="custQWrong3" class="w-full bg-red-50 border-2 border-red-200 rounded-xl p-3 focus:border-red-400 focus:bg-white focus:outline-none transition" placeholder="Fausse réponse 3 (Optionnelle)">
+        </div>
+        <div>
+          <label class="block mb-1.5 mt-2">Anecdote / Explication (Optionnel)</label>
+          <textarea id="custQExpl" rows="2" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 focus:border-purple-400 focus:bg-white focus:outline-none transition" placeholder="Ex: Autumn adore les animaux de la ferme..."></textarea>
+        </div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <button type="button" onclick="app.closeCustomModal()" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-friends text-xl transition">ANNULER</button>
+          <button type="submit" class="px-6 py-3 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-friends text-xl shadow-md transition">AJOUTER</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full text-center py-5 text-sm text-slate-400 font-bold relative z-10 mt-auto">
+    <p>Conçu pour animer le brief d'équipe • LEGO® Friends • Bienvenue à Heartlake City ! 🦋</p>
+  </footer>
+
+  <script>
+    /**
+     * BANQUE DE 100 QUESTIONS LEGO FRIENDS (HISTOIRE, ANCIENNE & NOUVELLE GÉNÉRATION)
+     */
+    const INITIAL_QUESTIONS = [
+      // GÉNÉRATION ORIGINALE (2012-2022) - 1 à 25
+      { question: "En quelle année la gamme LEGO Friends avec les mini-poupées a-t-elle été lancée ?", options: ["2012", "2010", "2014", "2008"], correct: 0, category: "Histoire LEGO", explanation: "La gamme a été introduite mondialement début 2012, révolutionnant le public cible de LEGO." },
+      { question: "Parmi les 5 amies originales, qui est la scientifique et inventrice ?", options: ["Olivia", "Stephanie", "Mia", "Emma"], correct: 0, category: "Génération Originale", explanation: "Olivia adore la robotique, les sciences et l'informatique. Elle a même créé le robot Zobo." },
+      { question: "Quel est le nom du célèbre robot de compagnie créé par Olivia ?", options: ["Zobo", "Roby", "Gizmo", "Sprocket"], correct: 0, category: "Personnages", explanation: "Zobo est apparu dans de nombreux sets aux côtés d'Olivia." },
+      { question: "Quelle fille du groupe original est passionnée par les animaux et la nature, arborant des cheveux roux ?", options: ["Mia", "Stephanie", "Andrea", "Emma"], correct: 0, category: "Génération Originale", explanation: "Mia est l'aventurière amoureuse de la nature et des animaux, et travaille souvent à la clinique vétérinaire." },
+      { question: "Quelle est la passion principale de Stephanie (génération 1) ?", options: ["Le sport et la pâtisserie", "Le chant et la danse", "Le dessin et la mode", "L'informatique"], correct: 0, category: "Génération Originale", explanation: "Stephanie est hyperactive, très organisée, excellente pâtissière et sportive." },
+      { question: "Qui est la chanteuse talentueuse et dramatique du premier groupe de 5 amies ?", options: ["Andrea", "Emma", "Olivia", "Mia"], correct: 0, category: "Génération Originale", explanation: "Andrea rêve de devenir une star, elle adore chanter et se produire sur scène." },
+      { question: "De quelle couleur est principalement associée Emma dans ses tenues et ses sets de la première décennie ?", options: ["Violet et Blanc", "Bleu et Rose", "Vert et Marron", "Jaune et Bleu"], correct: 0, category: "Design", explanation: "Emma, l'artiste du groupe, utilise souvent le violet (lavande) dans son code couleur." },
+      { question: "Comment s'appelle la ville où se déroulent toutes les aventures de LEGO Friends ?", options: ["Heartlake City", "Briqueville", "Sunny Bay", "Starshine City"], correct: 0, category: "Lieux", explanation: "Heartlake City, construite autour d'un grand lac en forme de cœur." },
+      { question: "Quel set mythique de 2015 (41101) a été l'un des plus grands succès commerciaux de la gamme ?", options: ["Le Grand Hôtel de Heartlake City", "Le Centre Commercial", "La Base de Sauvetage dans la Jungle", "La Fête Foraine"], correct: 0, category: "Sets LEGO", explanation: "Le Grand Hôtel, un magnifique bâtiment noir, beige et or, est un classique absolu." },
+      { question: "Avant les mini-poupées de 2012, quelle ancienne gamme LEGO s'adressait spécifiquement aux petites filles dans les années 90 ?", options: ["LEGO Belville", "LEGO Scala", "LEGO Paradisa", "Toutes ces réponses"], correct: 0, category: "Histoire LEGO", explanation: "Paradisa (système classique), Belville (grandes figurines articulées) et Scala (poupées réalistes) ont toutes précédé Friends." },
+      { question: "L'univers de Heartlake City s'est agrandi avec des sous-thèmes. Lequel de ces thèmes n'a JAMAIS fait partie de LEGO Friends ?", options: ["L'Exploration Spatiale sur Mars", "Le Sauvetage dans la Jungle", "La Fête Foraine et les Montagnes Russes", "Le Sauvetage en Mer (Sous-marin)"], correct: 0, category: "Gamme LEGO", explanation: "Friends est allé dans l'espace (Space Academy), dans la jungle et sous la mer, mais n'a pas encore fait de base sur Mars !" },
+      { question: "Qui est le cheval préféré de Mia dans l'ancienne génération ?", options: ["Bella", "Toffee", "Star", "Sunshine"], correct: 0, category: "Animaux", explanation: "Bella est le cheval que Mia monte et dont elle s'occupe régulièrement." },
+      { question: "Quel bâtiment est le lieu de rassemblement préféré historique des 5 amies (sorti plusieurs fois en set) ?", options: ["Le Café de Heartlake City", "Le Bowling", "La Pizzeria", "La Bibliothèque"], correct: 0, category: "Sets LEGO", explanation: "Le Café (Central Café, Park Café) est l'équivalent du Central Perk pour les LEGO Friends." },
+      { question: "En 2018, la gamme LEGO Friends a subi un petit 'Reboot' de design. Qu'est-il arrivé aux personnages ?", options: ["Elles ont changé de tenues, de couleurs et parfois de couleur d'yeux", "Elles ont été remplacées par 5 autres filles", "Elles sont devenues des figurines LEGO classiques", "Elles ont vieilli de 10 ans"], correct: 0, category: "Histoire LEGO", explanation: "En 2018, LEGO a rafraîchi le design (Mia a eu des yeux verts, Emma des yeux verts, etc.) pour moderniser la gamme." },
+      { question: "Dans le dessin animé original, comment s'appelle la petite sœur d'Andrea qui peut parfois être agaçante ?", options: ["Liz", "Chloe", "Sophie", "Maya"], correct: 0, category: "Dessin Animé", explanation: "Liz est la petite sœur d'Andrea, souvent très intelligente pour son âge." },
+      { question: "Lequel de ces sets massifs (41375) représentait un lieu de divertissement avec un bateau pirate ?", options: ["Le Quai de la Fête Foraine", "Le Parc Aquatique", "La Base de Plongée", "Le Centre de Vacances"], correct: 0, category: "Sets LEGO", explanation: "Le Quai des amusements de Heartlake City comprenait des manèges et une attraction de bateau pirate fantôme." },
+      { question: "Qui conduisait la célèbre Voiture Décapotable mauve de la toute première vague de sets en 2012 (3183) ?", options: ["Stephanie", "Olivia", "Emma", "Andrea"], correct: 0, category: "Sets LEGO", explanation: "La Décapotable de Stephanie (Stephanie's Cool Convertible) était l'un des sets de lancement les plus iconiques." },
+      { question: "Dans la série animée 'Girls on a Mission', quelle structure les filles utilisent-elles comme QG ?", options: ["La Maison de l'Amitié (une ancienne caserne de pompiers)", "Une cabane dans les arbres", "Le sous-sol d'Olivia", "Le dernier étage du Grand Hôtel"], correct: 0, category: "Lieux", explanation: "Elles ont rénové une vieille caserne de pompiers pour en faire la Friendship House (Maison de l'Amitié)." },
+      { question: "Quelle amie a une chienne carlin (Pug) nommée Toffee ?", options: ["Andrea", "Stephanie", "Mia", "Emma"], correct: 0, category: "Animaux", explanation: "La famille d'Andrea possède ce petit chien adorable." },
+      { question: "Laquelle des 5 filles d'origine est passionnée de Karaté et d'arts martiaux, en plus de l'art ?", options: ["Emma", "Mia", "Stephanie", "Aucune, c'est un mythe"], correct: 0, category: "Personnages", explanation: "Emma, en plus d'être très créative et douce, pratique le karaté !" },
+      { question: "Comment s'appelle le père d'Olivia, très présent dans la série 2012 ?", options: ["Peter", "Matthew", "John", "Thomas"], correct: 0, category: "Personnages", explanation: "Peter et sa femme Anna sont les parents d'Olivia, ils ont la maison emblématique (Set 3315)." },
+      { question: "Quel grand set de 2022 (41704) détient le record du plus grand nombre de pièces dans la gamme Friends avant le reboot ?", options: ["L'Édifice de la Rue Principale", "La Maison de l'Amitié dans l'Arbre", "Le Grand Hôtel", "Le Centre Commercial de Heartlake City"], correct: 0, category: "Sets LEGO", explanation: "Le Bâtiment de la Rue Principale (Main Street Building) comptait 1682 pièces, un record à l'époque pour la gamme." },
+      { question: "Quel set célèbre de 2020 permet aux filles de sauver des paresseux et des éléphants ?", options: ["La Base de Sauvetage dans la Jungle (41424)", "La Clinique Vétérinaire", "Le Camp de Vacances", "La Cabane dans les Arbres de Mia"], correct: 0, category: "Sets LEGO", explanation: "Un énorme QG dans la jungle pour la vague 'Alpaga / Jungle' de l'été 2020." },
+      { question: "Dans la gamme Friends, comment appelle-t-on le format des personnages (plus grand et fin qu'une minifigurine) ?", options: ["La mini-poupée (mini-doll)", "La maxi-figure", "La figurine articulée", "La Fabuland figure"], correct: 0, category: "Terminologie", explanation: "Les 'mini-dolls' ont depuis été utilisées pour Disney Princess, Elves, et DC Super Hero Girls." },
+      { question: "Qui est le principal rival de Stephanie en sport et en pâtisserie (dans la série animée) ?", options: ["Tanya", "Chloe", "Emma", "Vicky"], correct: 0, category: "Dessin Animé", explanation: "Tanya (la fille du maire) est souvent la rivale arrogante de Stephanie." },
+
+      // LA NOUVELLE GÉNÉRATION (REBOOT 2023) - 26 à 60
+      { question: "En 2023, LEGO Friends a connu un 'Reboot' majeur. Combien de NOUVEAUX personnages principaux forment le groupe ?", options: ["8", "5", "6", "10"], correct: 0, category: "Nouvelle Génération", explanation: "Il y a désormais 8 amis principaux (3 garçons et 5 filles) avec des personnalités beaucoup plus diverses." },
+      { question: "Dans la nouvelle génération (2023), laquelle des amies originelles est devenue la Maman de la nouvelle venue Autumn ?", options: ["Mia", "Stephanie", "Olivia", "Emma"], correct: 0, category: "Lien Générationnel", explanation: "Mia a grandi, est devenue vétérinaire et est la maman d'Autumn ! On la voit dans la nouvelle Maison d'Autumn." },
+      { question: "Quel personnage de 2023 est né avec une différence physique visible (une différence de formation du bras gauche) ?", options: ["Autumn", "Nova", "Paisley", "Liann"], correct: 0, category: "Nouvelle Génération", explanation: "Autumn a été créée pour offrir plus de représentation et d'inclusivité, elle adore la nature comme sa mère." },
+      { question: "Parmi les nouveaux personnages, qui est la brillante étudiante, très organisée et ambitieuse ?", options: ["Aliya", "Liann", "Nova", "Paisley"], correct: 0, category: "Nouvelle Génération", explanation: "Aliya est perfectionniste, travaille dur à l'école internationale et adore la lecture." },
+      { question: "Qui est le garçon du nouveau groupe passionné par la cuisine et la pâtisserie (il vient d'emménager en ville) ?", options: ["Leo", "Zac", "Olly", "Matthew"], correct: 0, category: "Nouvelle Génération", explanation: "Leo a installé un studio de cuisine dans sa chambre pour partager ses recettes." },
+      { question: "Quel personnage de 2023 est une gameuse acharnée et streameuse avec un grand sens de l'humour (et parfois un peu trop franche) ?", options: ["Nova", "Liann", "Aliya", "Zac"], correct: 0, category: "Nouvelle Génération", explanation: "Nova a un crâne rasé sur le côté, adore les jeux vidéo et a du mal à se faire des amis IRL au début." },
+      { question: "Qui est la fille timide mais très talentueuse en musique, qui cache son visage avec ses cheveux ?", options: ["Paisley", "Autumn", "Liann", "Nova"], correct: 0, category: "Nouvelle Génération", explanation: "Paisley a beaucoup d'anxiété sociale, mais une voix magnifique." },
+      { question: "Quel garçon du groupe adore la mode, le design et filmer des vidéos pour les réseaux ?", options: ["Olly", "Zac", "Leo", "Julian"], correct: 0, category: "Nouvelle Génération", explanation: "Olly est un créateur né, toujours habillé avec style et prêt à coudre de nouvelles tenues." },
+      { question: "Lequel des nouveaux garçons est très sportif, confiant, et pense être le meilleur à tout ce qu'il essaie ?", options: ["Zac", "Leo", "Olly", "Aliya (c'est une fille mais bon)"], correct: 0, category: "Nouvelle Génération", explanation: "Zac aime les arts martiaux, le sport et les mangas. Il déteste perdre." },
+      { question: "Dans le reboot de 2023, qui est la colocataire de chambre de Nova à l'école ?", options: ["Aliya", "Liann", "Paisley", "Autumn"], correct: 0, category: "Dessin Animé 2023", explanation: "Aliya (très organisée) et Nova (très désordonnée et geek) partagent une chambre, ce qui crée des étincelles !" },
+      { question: "Comment s'appelle l'énorme et magnifique école sortie en set en 2023 (41731) ?", options: ["L'École Internationale de Heartlake City", "Le Lycée de Heartlake", "L'Académie des Arts", "L'Université de l'Amitié"], correct: 0, category: "Sets LEGO", explanation: "L'École Internationale est un set modulaire géant où tous les nouveaux personnages étudient." },
+      { question: "Que fait Liann avec passion, au point d'en mettre partout ?", options: ["Du dessin et du skate", "De la cuisine", "Des jeux vidéo", "Du jardinage"], correct: 0, category: "Nouvelle Génération", explanation: "Liann est impulsive, très artistique, adore dessiner des BD et faire du skateboard." },
+      { question: "Quel énorme set de 2023 (41732), le plus grand de la gamme avec plus de 2000 pièces, représente un carrefour urbain ?", options: ["Le Centre-ville avec Fleuriste et Magasin de Design", "Le Grand Mall", "La Mairie de Heartlake", "Le Nouvel Hôpital"], correct: 0, category: "Sets LEGO", explanation: "C'est un ensemble modulaire superbe incluant le magasin de design d'Olly et l'appartement de Liann." },
+      { question: "Qui est le chien à roulettes (handicapé) adopté par Nova dans la série et les sets ?", options: ["Pickle", "Churros", "Biscuit", "Gimli"], correct: 0, category: "Animaux", explanation: "Pickle est un petit chien avec un chariot à roulettes pour ses pattes arrière. Nova s'y est beaucoup attachée." },
+      { question: "Quel métier exerce l'ancienne amie Stephanie dans le reboot de 2023 ?", options: ["Maire de Heartlake City", "Chef Pâtissière", "Entraîneuse Sportive", "Professeure de Mathématiques"], correct: 0, category: "Lien Générationnel", explanation: "Elle a atteint son rêve de devenir un grand leader : elle est la Maire de la ville." },
+      { question: "Où travaille Olivia dans le reboot de 2023 ?", options: ["Elle est Astronaute / Scientifique pour l'Académie Spatiale", "Elle tient le Café", "Elle est professeur à l'École Internationale", "Elle développe des jeux vidéo avec Nova"], correct: 0, category: "Lien Générationnel", explanation: "Olivia a réussi à intégrer un prestigieux programme spatial en tant que scientifique." },
+      { question: "Comment s'appelle le chat caractériel de Liann qui la suit partout et apparaît dans le set de sa chambre ?", options: ["Popcorn", "Churros", "Shadow", "Pancake"], correct: 0, category: "Animaux", explanation: "Popcorn est un chat amusant et un peu dodu qu'elle dessine souvent dans ses carnets." },
+      { question: "Quel grand set (41730) représente le point de ralliement campagnard de la nouvelle génération ?", options: ["La Maison d'Autumn", "La Ferme aux Poneys", "Le Centre Équestre", "La Cabane dans les Arbres de l'Amitié"], correct: 0, category: "Sets LEGO", explanation: "La Maison d'Autumn, pleine de nature, avec Mia (adulte) et de nombreux animaux, est leur QG pour se détendre." },
+      { question: "Qui est la petite sœur de Paisley qui passe son temps à l'embêter ?", options: ["Ella", "Chloe", "Liz", "Gwen"], correct: 0, category: "Nouvelle Génération", explanation: "Ella est la petite sœur énergique et parfois envahissante de Paisley." },
+      { question: "Dans le set du supermarché biologique de 2023, qui gère le magasin ?", options: ["Isaac, le père de Leo", "Mia", "Zac", "La Maire Stephanie"], correct: 0, category: "Sets LEGO", explanation: "Le supermarché (Organic Grocery Store) est un set où l'on voit le papa de Leo travailler." },
+      { question: "Qu'est-il arrivé aux anciennes héroïnes ? Sont-elles toujours produites en figurines dans les nouveaux sets ?", options: ["Elles apparaissent en tant qu'adultes dans certains sets clés", "Elles ont disparu définitivement", "Elles sont restées adolescentes", "Elles n'apparaissent plus que dans les jeux vidéo"], correct: 0, category: "Gamme LEGO", explanation: "LEGO les inclut progressivement en tant qu'adultes : Mia, Stephanie, Andrea, etc., jouent le rôle de mentors ou de parents." },
+      { question: "Dans la chambre d'Aliya, quel est son accessoire le plus mis en avant ?", options: ["Une énorme bibliothèque et un bureau soigné", "Un setup de jeu à trois écrans", "Un four de cuisine", "Un télescope géant"], correct: 0, category: "Design", explanation: "Son set de chambre reflète sa passion pour l'école et la lecture." },
+      { question: "Zac est le cousin d'une des anciennes héroïnes. Laquelle ?", options: ["Andrea", "Olivia", "Emma", "Stephanie"], correct: 0, category: "Lien Générationnel", explanation: "Zac est le cousin d'Andrea (qui est devenue une popstar mondiale) !" },
+      { question: "Lequel de ces lieux est au centre des loisirs des 8 amis en 2023 (Set 41729) ?", options: ["Le Centre de Sauvetage Canin", "Le Cinéma d'Heartlake", "La Salle d'Arcade", "Le Parc des Expositions"], correct: 0, category: "Sets LEGO", explanation: "Le Centre de Sauvetage Canin, très apprécié par Autumn et les autres pour aider les animaux." },
+      { question: "Quelle fille de la nouvelle génération se révèle être secrètement la chanteuse star 'Ley-La' ?", options: ["Paisley", "Aliya", "Liann", "Nova"], correct: 0, category: "Lore 2023", explanation: "Trop timide pour chanter sous son vrai nom, Paisley a créé un alter ego célèbre : Ley-La avec une perruque blonde." },
+      { question: "Qui est le meilleur ami de Paisley, qui la soutient et connaît son secret musical ?", options: ["Olly", "Leo", "Zac", "Aliya"], correct: 0, category: "Nouvelle Génération", explanation: "Olly et Paisley sont inséparables, il l'aide même à créer les looks de 'Ley-La'." },
+      { question: "Quel grand Bâtiment Communautaire de 2024 (41748) s'empile avec d'immenses blocs colorés (Gaming, Musique, Art, etc.) ?", options: ["Le Centre Communautaire de Heartlake City", "Le Grand Hôtel", "Le Centre Commercial", "La Tour de Babel"], correct: 0, category: "Sets LEGO", explanation: "C'est un bâtiment modulaire ultra-coloré où chaque étage est dédié aux passions des différents amis." },
+      { question: "Dans les boîtes de LEGO Friends récentes, les visages des mini-poupées ont-ils évolué ?", options: ["Oui, ils ont des expressions plus variées (joie, peur, colère, surprise)", "Non, ils ont tous le même sourire", "Oui, ils ont maintenant des nez en relief", "Non, ce sont des têtes jaunes classiques"], correct: 0, category: "Design", explanation: "Pour la nouvelle génération, LEGO a multiplié les expressions faciales pour rendre les poupées plus expressives que jamais." },
+
+      // SETS EMBLÉMATIQUES & VAGUES THÉMATIQUES - 61 à 90
+      { question: "Quel animal marin était mis en avant dans la vague de sets 'Opération Sauvetage' avec un grand bateau de croisière ?", options: ["Le Dauphin", "La Baleine", "La Tortue", "Le Requin"], correct: 0, category: "Animaux/Sets", explanation: "Le Bateau de Sauvetage des Dauphins (Dolphin Cruiser) est un des sets de bateaux les plus célèbres de Friends." },
+      { question: "En 2020, les filles visitaient la jungle. En 2021, dans quel biome se rendent-elles pour sauver des animaux avec la Forêt Magique ?", options: ["La Forêt (Cascades, Chevaux et Maison dans les Arbres)", "Le Désert", "L'Arctique", "Le Volcan"], correct: 0, category: "Gamme LEGO", explanation: "La vague 'Forest' incluait une grande cabane, un centre équestre de la forêt et des cascades avec des ratons-laveurs." },
+      { question: "Dans le thème de la Fête Foraine Magique (2021), quel effet spécial LEGO a introduit dans ses sets ?", options: ["Des pièces réagissant à la lumière noire (Glow/UV) et des illusions de magie", "Des hologrammes", "Des pièces parfumées à la barbe à papa", "Des aimants puissants"], correct: 0, category: "Technique LEGO", explanation: "Certains éléments réagissaient au noir et il y avait des tours de magie mécaniques pour faire 'disparaître' les mini-poupées." },
+      { question: "Quel set hivernal de Heartlake City (41323/41147) incluait une patinoire et un chalet de ski ?", options: ["La Station de Ski (Snow Resort)", "Le Village de Noël", "L'Hôtel de Glace", "Le Palais d'Hiver"], correct: 0, category: "Gamme LEGO", explanation: "La gamme 'Snow Resort' proposait un télésiège, un chalet et une patinoire." },
+      { question: "Dans le domaine de l'espace, LEGO Friends a sorti en 2022 le set 'L'Académie Spatiale d'Olivia' (41713). En collaboration avec quelle agence spatiale ?", options: ["Aucune agence, mais avec l'inspiration réelle (navette style NASA avec bras Canadia)", "L'ESA", "SpaceX", "La NASA officiellement brandée sur la boîte"], correct: 0, category: "Sets LEGO", explanation: "Le set n'a pas le logo NASA sur la boîte, mais il a été conçu en s'inspirant fortement de la navette spatiale réelle avec des clins d'œil scientifiques ultra précis." },
+      { question: "Quel grand bateau de 2024 (42604) permet à la nouvelle génération de sauver l'océan, et est fait en partie de plastique recyclé ?", options: ["Le Bateau de Sauvetage en Mer (Sea Rescue Boat)", "Le Sous-marin d'Exploration", "Le Catamaran de Croisière", "Le Brise-Glace"], correct: 0, category: "Sets LEGO", explanation: "Ce set met l'accent sur l'écologie (ramassage de déchets en mer) très présent dans l'esprit de la nouvelle génération." },
+      { question: "Pour fêter les 10 ans de Friends en 2022, quel set ultime de 1114 pièces représentant l'historique du groupe a été édité ?", options: ["La Maison dans l'Arbre de l'Amitié (41703)", "Le Grand Hôtel 10 ans", "La Mairie de Heartlake", "Le Musée Friends"], correct: 0, category: "Sets LEGO", explanation: "La Friendship Tree House (41703) contient des clins d'œil cachés à des dizaines d'anciens sets de la décennie." },
+      { question: "Dans 'La Maison dans l'Arbre de l'Amitié', quel système original permet de monter aux étages ?", options: ["Un élévateur mécanique tournant (fauteuil roulant accessible)", "Une liane géante", "Un trampoline à ressort", "Un jetpack"], correct: 0, category: "Sets LEGO", explanation: "Il intègre un petit ascenseur éolien fonctionnel, démontrant l'engagement de Friends pour l'accessibilité." },
+      { question: "Qui est le cheval à la patte artificielle apparu dans le set 'Le van de remorquage du cheval' (41722) ?", options: ["Le poulain avec une prothèse (Mélody)", "Toffee", "Star", "Shadow"], correct: 0, category: "Animaux", explanation: "Fidèle à l'inclusivité, Friends a introduit des animaux avec des handicaps, dont un chien en fauteuil et un poulain aveugle ou avec prothèse." },
+      { question: "Le tout premier set Friends (et l'un des plus vendus) portait la référence 3185 et incluait un manège. De quel set s'agit-il ?", options: ["Le Camp d'Équitation d'Été", "Le Club de Plongée", "L'Hôtel de la Plage", "Le Poney Club"], correct: 0, category: "Sets LEGO", explanation: "Summer Riding Camp a marqué toute une génération avec ses vans, écuries et feu de camp." },
+      { question: "Dans le thème Hôpital de 2024 (42621), quelle nouveauté majeure voit-on concernant les patients ?", options: ["Des patients avec des prothèses de membres, des bébés prématurés et un fauteuil roulant", "Il n'y a que des animaux", "Les patients sont des robots", "Uniquement des lits magiques"], correct: 0, category: "Sets LEGO", explanation: "L'Hôpital de Heartlake City pousse le réalisme émotionnel et la diversité des patients très loin." },
+      { question: "Le set 'Le Supermarché' sorti en 2016 s'est distingué par quel accessoire amusant pour faire ses courses ?", options: ["Un caddie (chariot) à roulettes parfaitement à l'échelle", "Des tapis roulants motorisés", "Un drone de livraison", "Un code barre fonctionnel"], correct: 0, category: "Design LEGO", explanation: "Le caddie jaune moulé était une nouveauté fantastique très appréciée des fans." },
+      { question: "Quel métier exerce la maman d'Andrea dans la première génération ?", options: ["Elle travaille dans un studio de musique (Musicienne)", "Elle est vétérinaire", "Elle est chef cuisinière", "Elle est pilote d'avion"], correct: 0, category: "Personnages", explanation: "La famille d'Andrea baigne dans la musique et le spectacle." },
+      { question: "Dans la Maison de Stephanie (41314), quelle pièce est particulièrement mise en valeur avec une grande porte vitrée ?", options: ["La grande cuisine américaine", "La salle de sport", "Le garage à bateau", "Le dressing de mode"], correct: 0, category: "Sets LEGO", explanation: "En bonne pâtissière, la maison de Stephanie tourne beaucoup autour d'une superbe cuisine équipée." },
+      { question: "Quelle actrice ou pop-star de la vraie vie a eu son propre personnage (Livi) dans la vague 'Pop Star' de 2015 ?", options: ["Livi n'est pas une vraie actrice (C'est un personnage fictif)", "Taylor Swift", "Ariana Grande", "Katy Perry"], correct: 0, category: "Lore", explanation: "Livi est la méga pop-star de Heartlake City, mais elle a été créée à 100% par LEGO (cheveux roses iconiques)." },
+      { question: "Dans le set du Tour Bus de la Pop Star (41106), que cachait le bus lorsqu'on l'ouvrait ?", options: ["Une scène de DJ, un lit, un bain à remous et des loges", "Un studio d'enregistrement pour chèvres", "Une piscine à vagues", "Un aquarium géant"], correct: 0, category: "Sets LEGO", explanation: "C'est un des bus les plus complets et luxueux jamais créés par LEGO." },
+      { question: "Comment s'appelle l'ennemi/le rival de Leo à l'école de cuisine (souvent vue dans les épisodes) ?", options: ["Churros", "Victoria", "Tanya", "Matthew"], correct: 0, category: "Dessin Animé", explanation: "Ah, c'est une question piège : il y a plusieurs rivalités, mais Leo doute surtout de lui-même. (Victoria n'est pas le vrai nom de son ennemi). On se rappellera surtout que LEO gère la cuisine." },
+      { question: "Laquelle de ces créatures n'a jamais été moulée spécialement pour la gamme Friends / Elves ?", options: ["Un dinosaure T-Rex géant", "Un alpaga", "Un paresseux", "Un caméléon"], correct: 0, category: "Pièces LEGO", explanation: "Friends a eu des alpagas, paresseux, éléphanteaux, caméléons, mais le T-Rex est resté chez Jurassic World !" },
+      { question: "Combien de tenues différentes environ chaque personnage original (comme Olivia ou Emma) a-t-il eu entre 2012 et 2022 ?", options: ["Plus de 50 tenues", "Seulement 5", "15", "Exactement 100"], correct: 0, category: "Minifigures", explanation: "Entre les tenues d'été, d'hiver, d'équitation, d'espace, de pop-star, elles ont eu plus de 50 torses et jambes différents !" },
+      { question: "L'univers Friends utilise un code couleur pour le manuel d'instructions. Quelle particularité ?", options: ["Le personnage principal du set apparaît en dessin en bas pour montrer une barre de progression", "Il est imprimé sur papier rose", "Il n'y a pas de manuel, que du numérique", "C'est un livre qui sent la fraise"], correct: 0, category: "Design LEGO", explanation: "C'est une spécificité adorable : une petite mini-poupée court en bas de la page, sa progression indique où on en est dans le livret !" },
+      { question: "Dans les boîtes LEGO Friends, les pièces ne sont pas toujours ensachées par numéro classiques, mais ont été (pendant un temps) séparées par... ?", options: ["Pièces de construction principales / Accessoires", "Couleurs", "Petites et grandes pièces", "Matières plastiques"], correct: 0, category: "Packaging", explanation: "Au tout début de la gamme, l'accent était mis sur 'construire d'abord le lieu, puis ajouter les accessoires' pour encourager le jeu rapide." },
+      { question: "Quel grand parc d'attraction sous-marin avec un poulpe géant est sorti en 2020 (41337 / 41373) ?", options: ["Le Manège Poulpe (Octopus Ride)", "Le grand huit du Requin", "La Plongée de la Sirène", "Le Temple de l'Atlantide"], correct: 0, category: "Sets LEGO", explanation: "Le manège pieuvre (Octopus Ride) permettait de faire tourner 4 nacelles marines." },
+      { question: "Quelle grande surface commerciale modulaire (3 étages) a relancé les achats à Heartlake en 2021 (41450) ?", options: ["Le Centre Commercial de Heartlake City (version 2)", "La Superette d'Olivia", "Les Galeries Lafayette", "Le Marché de Noël"], correct: 0, category: "Sets LEGO", explanation: "Avec ses escalators fonctionnels (une prouesse en briques classiques) et sa zone de restauration rapide !" },
+      { question: "Quel accessoire LEGO a été inventé spécifiquement pour la gamme Friends et est devenu universel ?", options: ["Les petits nœuds/fleurs qui se clipsent dans les trous de cheveux", "Le séparateur de briques orange", "Les plaques de route", "Les capes en tissu dur"], correct: 0, category: "Pièces LEGO", explanation: "Les accessoires 'Friends' (lunettes, nœuds, étoiles) avec une minuscule tige pour les cheveux sont nés en 2012 avec cette gamme." },
+
+      // LORE & QUESTIONS DIVERSES (91 à 100)
+      { question: "Dans quelle ville Emma est-elle partie étudier les arts à la fin de la série originelle (avant le saut dans le temps) ?", options: ["Paris (Ou l'équivalent LEGO)", "New York", "Ninjago City", "Londres"], correct: 0, category: "Lore 2022", explanation: "Pour clôturer leur arc, les 5 amies partent réaliser leurs rêves à travers le monde (Emma part faire les Beaux-Arts en France/Paris de Heartlake)." },
+      { question: "Quel set propose de construire une véritable base dans un arbre pour la famille de Mia en 2018 (41335) ?", options: ["La Cabane de Mia", "La Forêt des elfes", "Le Nid d'Aigle", "La Base Nature"], correct: 0, category: "Sets LEGO", explanation: "Mia's Tree House, avec un filet d'escalade, un skate-board et son lapin Cinnamon." },
+      { question: "Parmi ces animaux fantastiques, lesquels n'ont jamais été introduits dans un set Friends 'magique' ?", options: ["Des dragons cracheurs de feu (C'est Elves)", "Des alicornes (Licorne ailée)", "Des lapins colorés", "Des dauphins roses"], correct: 0, category: "Gamme LEGO", explanation: "LEGO Elves (la gamme sœur) avait des dragons, mais Friends est resté ancré dans la 'réalité' de Heartlake City, même si c'est coloré." },
+      { question: "Comment s'appelle l'école où vont Aliya, Autumn, Liann, Nova et les autres garçons en 2023 ?", options: ["Heartlake International School", "Bayside High", "Heartlake College", "Académie des Amis"], correct: 0, category: "Lieux", explanation: "C'est l'école internationale (H.I.S) qui regroupe la diversité culturelle et les différentes passions des élèves." },
+      { question: "De quel instrument de musique joue principalement Paisley ?", options: ["De la guitare acoustique", "De la batterie", "Du piano à queue", "Du violon"], correct: 0, category: "Personnages", explanation: "Paisley emmène toujours sa guitare pour écrire des chansons loin du bruit." },
+      { question: "Quel élément de la chambre d'Aliya montre qu'elle se met trop la pression ?", options: ["Elle a des feuilles de révision cachées sous son lit", "Ses murs sont remplis d'affiches de catch", "Elle a cassé sa télévision de rage", "Son bureau est vide"], correct: 0, category: "Lore 2023", explanation: "Dans le set de sa chambre et la série animée, on découvre qu'elle dort peu et cache ses devoirs sous son lit de stress." },
+      { question: "Qui de l'ancienne génération travaille en tant que DJ dans certains épisodes et sets musicaux ?", options: ["Andrea", "Emma", "Olivia", "Stephanie"], correct: 0, category: "Génération Originale", explanation: "Andrea (et parfois ses amies) adorent mixer de la musique sur scène et lors des fêtes sur le quai." },
+      { question: "Le Manège Sous-Marin, La Fête Foraine Magique et Le Roller Coaster de l'Espace. Lequel est sorti en 2022 ?", options: ["L'Académie Spatiale / Roller Coaster de l'espace", "La Fête Foraine Magique", "Le Manège Poulpe", "Le Grand Huit du Requin"], correct: 0, category: "Sets LEGO", explanation: "Le Roller Coaster (Montagnes russes) de l'Espace de Heartlake City est un set incroyable de 2022 avec un design de fusée (Set 41685 était Magical, mais l'Espace Rollercoaster est 41713 en partie ou le grand Space Ride)." },
+      { question: "Quel personnage a la particularité d'être souvent vu avec son casque audio de gaming et un smartphone ?", options: ["Nova", "Aliya", "Liann", "Autumn"], correct: 0, category: "Nouvelle Génération", explanation: "Nova vit connectée à sa communauté de viewers 24h/24." },
+      { question: "Quel message principal LEGO souhaite-t-il transmettre avec le 'Reboot' de Friends en 2023 ?", options: ["Célébrer toutes les diversités (physiques, neuroatypiques, origines) et les amitiés imparfaites", "Que la magie résout tout", "Qu'il faut se battre pour réussir", "Que l'espace est la prochaine frontière"], correct: 0, category: "Vision LEGO", explanation: "La nouvelle génération célèbre l'authenticité : les amis se disputent, ont des doutes, et viennent d'horizons très variés et inclusifs." }
+    ];
+
+    /**
+     * MOTEUR AUDIO (STYLE PETILLANT / FRIENDS)
+     */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      initCtx() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playSparkle() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        // Arpège ascendant "Magique/Pétillant" (C6, E6, G6, C7)
+        const notes = [1046.50, 1318.51, 1567.98, 2093.00];
+        let now = this.ctx.currentTime;
+
+        notes.forEach((freq, index) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          
+          osc.type = 'sine'; // Son pur et doux
+          osc.frequency.setValueAtTime(freq, now + index * 0.08);
+
+          gain.gain.setValueAtTime(0, now + index * 0.08);
+          gain.gain.linearRampToValueAtTime(0.3, now + index * 0.08 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.08 + 0.3);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          
+          osc.start(now + index * 0.08);
+          osc.stop(now + index * 0.08 + 0.3);
+        });
+      }
+
+      playBoop() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        // Bruit doux grave (Échec amical)
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.4);
+
+        gain.gain.setValueAtTime(0, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.4, this.ctx.currentTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.4);
+      }
+
+      playTick() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+    }
+
+    /**
+     * CONTRÔLEUR PRINCIPAL DE L'APPLICATION
+     */
+    class QuizApp {
+      constructor() {
+        this.questionsPool = [...INITIAL_QUESTIONS];
+        this.sound = new SoundEngine();
+
+        this.gameMode = 'solo';
+        this.activeQuestions = [];
+        this.currentIndex = 0;
+        this.totalQuestionsCount = 10;
+
+        this.soloScore = 0;
+        this.teamAScore = 0;
+        this.teamBScore = 0;
+        this.currentTurn = 'teamA';
+        
+        this.playerName = 'Exploratrice';
+        this.teamAName = 'Les Étoiles';
+        this.teamBName = "Les Cœurs";
+        this.pendingMode = 'solo';
+
+        this.timerEnabled = true;
+        this.timerSeconds = 15;
+        this.timerInterval = null;
+        this.hasAnswered = false;
+
+        this.initUI();
+      }
+
+      initUI() {
+        document.getElementById('poolCountText').innerText = this.questionsPool.length;
+      }
+
+      toggleSound() {
+        this.sound.enabled = !this.sound.enabled;
+        const iconOn = document.getElementById('soundIconOn');
+        const iconOff = document.getElementById('soundIconOff');
+        if (this.sound.enabled) {
+          iconOn.classList.remove('hidden');
+          iconOff.classList.add('hidden');
+          this.sound.playTick();
+        } else {
+          iconOn.classList.add('hidden');
+          iconOff.classList.remove('hidden');
+        }
+      }
+
+      showScreen(screenId) {
+        clearInterval(this.timerInterval);
+        document.getElementById('screen-welcome').classList.add('hidden');
+        document.getElementById('screen-quiz').classList.add('hidden');
+        document.getElementById('screen-results').classList.add('hidden');
+        document.getElementById('screen-leaderboard').classList.add('hidden');
+
+        document.getElementById(`screen-${screenId}`).classList.remove('hidden');
+      }
+
+      openNameSetup(mode) {
+        this.pendingMode = mode;
+        document.getElementById('nameSetupModal').classList.remove('hidden');
+        
+        // Petite animation de pop
+        const modalInner = document.getElementById('nameSetupModal').querySelector('div');
+        modalInner.classList.remove('scale-100');
+        modalInner.classList.add('scale-95');
+        setTimeout(() => modalInner.classList.replace('scale-95', 'scale-100'), 10);
+
+        if (mode === 'solo') {
+          document.getElementById('soloNameInput').classList.remove('hidden');
+          document.getElementById('duelNameInputs').classList.add('hidden');
+          document.getElementById('participantName').required = true;
+          document.getElementById('team1Name').required = false;
+          document.getElementById('team2Name').required = false;
+          setTimeout(() => document.getElementById('participantName').focus(), 50);
+        } else {
+          document.getElementById('soloNameInput').classList.add('hidden');
+          document.getElementById('duelNameInputs').classList.remove('hidden');
+          document.getElementById('participantName').required = false;
+          document.getElementById('team1Name').required = true;
+          document.getElementById('team2Name').required = true;
+          setTimeout(() => document.getElementById('team1Name').focus(), 50);
+        }
+      }
+
+      closeNameSetup() {
+        document.getElementById('nameSetupModal').classList.add('hidden');
+        document.getElementById('nameSetupForm').reset();
+      }
+
+      startWithNames(e) {
+        e.preventDefault();
+        if (this.pendingMode === 'solo') {
+          this.playerName = document.getElementById('participantName').value.trim() || 'Ami Inconnu';
+        } else {
+          this.teamAName = document.getElementById('team1Name').value.trim() || 'Équipe 1';
+          this.teamBName = document.getElementById('team2Name').value.trim() || 'Équipe 2';
+        }
+        this.closeNameSetup();
+        this.setupGame(this.pendingMode);
+      }
+
+      setupGame(mode) {
+        this.sound.initCtx();
+        this.gameMode = mode;
+        this.timerEnabled = document.getElementById('timerEnabledCheck').checked;
+
+        this.totalQuestionsCount = 10;
+
+        // Shuffle questions
+        const shuffled = [...this.questionsPool].sort(() => 0.5 - Math.random());
+        const targetCount = Math.min(this.totalQuestionsCount, shuffled.length);
+        this.activeQuestions = shuffled.slice(0, targetCount);
+
+        this.currentIndex = 0;
+        this.soloScore = 0;
+        this.teamAScore = 0;
+        this.teamBScore = 0;
+        this.currentTurn = 'teamA';
+
+        if (this.gameMode === 'duel') {
+          document.getElementById('duelHeaderWidget').classList.remove('hidden');
+          document.getElementById('soloHeaderWidget').classList.add('hidden');
+          document.getElementById('teamTurnIndicator').classList.remove('hidden');
+          document.getElementById('uiTeamAName').innerText = this.teamAName.toUpperCase();
+          document.getElementById('uiTeamBName').innerText = this.teamBName.toUpperCase();
+          this.updateDuelHeader();
+        } else {
+          document.getElementById('duelHeaderWidget').classList.add('hidden');
+          document.getElementById('soloHeaderWidget').classList.remove('hidden');
+          document.getElementById('teamTurnIndicator').classList.add('hidden');
+          document.getElementById('uiSoloName').innerText = this.playerName.toUpperCase();
+          document.getElementById('soloScore').innerText = '0';
+        }
+
+        const timerContainer = document.getElementById('timerContainer');
+        if (this.timerEnabled) {
+          timerContainer.classList.remove('hidden');
+        } else {
+          timerContainer.classList.add('hidden');
+        }
+
+        this.showScreen('quiz');
+        this.loadQuestion();
+      }
+
+      restartWithSameSettings() {
+        this.setupGame(this.gameMode);
+      }
+
+      updateDuelHeader() {
+        document.getElementById('teamAScore').innerText = this.teamAScore;
+        document.getElementById('teamBScore').innerText = this.teamBScore;
+
+        const teamABox = document.getElementById('teamAStatus');
+        const teamBBox = document.getElementById('teamBStatus');
+        const turnText = document.getElementById('teamTurnText');
+
+        if (this.currentTurn === 'teamA') {
+          teamABox.className = "px-4 py-2 rounded-xl border-2 border-pink-400 bg-pink-100 text-pink-600 shadow-md shadow-pink-200/50 transform scale-105";
+          teamBBox.className = "px-4 py-2 rounded-xl border-2 border-slate-200 bg-white text-slate-400 opacity-60 transform scale-95";
+          turnText.innerHTML = `Au tour de : <span class="text-pink-500 font-bold tracking-wide">${this.teamAName.toUpperCase()}</span> !`;
+        } else {
+          teamBBox.className = "px-4 py-2 rounded-xl border-2 border-teal-400 bg-teal-100 text-teal-700 shadow-md shadow-teal-200/50 transform scale-105";
+          teamABox.className = "px-4 py-2 rounded-xl border-2 border-slate-200 bg-white text-slate-400 opacity-60 transform scale-95";
+          turnText.innerHTML = `Au tour de : <span class="text-teal-600 font-bold tracking-wide">${this.teamBName.toUpperCase()}</span> !`;
+        }
+      }
+
+      loadQuestion() {
+        this.hasAnswered = false;
+        clearInterval(this.timerInterval);
+
+        const q = this.activeQuestions[this.currentIndex];
+        document.getElementById('currentRoundBadge').innerText = `Q${this.currentIndex + 1} / ${this.activeQuestions.length}`;
+        document.getElementById('categoryBadge').innerText = q.category || 'Heartlake City';
+
+        const catBadge = document.getElementById('categoryBadge');
+        if (q.category && (q.category.includes('Nouvelle') || q.category.includes('2023'))) {
+          catBadge.className = 'text-xs font-bold px-3 py-1 rounded-lg bg-teal-500 text-white shadow-sm';
+        } else if (q.category && q.category.includes('LEGO')) {
+          catBadge.className = 'text-xs font-bold px-3 py-1 rounded-lg bg-yellow-400 text-yellow-900 shadow-sm';
+        } else {
+          catBadge.className = 'text-xs font-bold px-3 py-1 rounded-lg bg-purple-500 text-white shadow-sm';
+        }
+
+        document.getElementById('questionText').innerText = q.question;
+        document.getElementById('feedbackContainer').classList.add('hidden');
+
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = '';
+
+        const choices = q.options.map((opt, idx) => ({
+          text: opt,
+          isCorrect: idx === q.correct
+        }));
+
+        choices.sort(() => 0.5 - Math.random());
+
+        const letters = ['A', 'B', 'C', 'D'];
+        choices.forEach((choice, i) => {
+          const btn = document.createElement('button');
+          btn.className = `option-btn group w-full p-4 md:p-5 rounded-2xl bg-slate-50 hover:bg-pink-50 border-2 border-slate-200 hover:border-pink-300 text-left flex items-center justify-between shadow-sm focus:outline-none`;
+          btn.innerHTML = `
+            <div class="flex items-center gap-4">
+              <span class="w-10 h-10 rounded-xl bg-white group-hover:bg-pink-500 group-hover:text-white flex items-center justify-center font-friends text-xl text-slate-400 border border-slate-200 group-hover:border-pink-500 transition-colors shadow-sm">
+                ${letters[i] || '•'}
+              </span>
+              <span class="text-sm md:text-base font-bold text-slate-700">${choice.text}</span>
+            </div>
+            <div class="option-icon opacity-0 transition-opacity"></div>
+          `;
+
+          btn.onclick = () => this.handleAnswer(choice.isCorrect, btn, choices);
+          grid.appendChild(btn);
+        });
+
+        if (this.timerEnabled) {
+          this.startTimer();
+        }
+      }
+
+      startTimer() {
+        this.timerSeconds = 15;
+        const box = document.getElementById('timerBox');
+        box.innerText = this.timerSeconds;
+        box.className = "w-12 h-12 rounded-full bg-white border-4 border-pink-400 flex items-center justify-center font-friends text-pink-500 text-2xl transition-colors shadow-sm";
+
+        this.timerInterval = setInterval(() => {
+          this.timerSeconds--;
+          box.innerText = this.timerSeconds;
+
+          if (this.timerSeconds <= 5) {
+            box.className = "w-12 h-12 rounded-full bg-red-50 border-4 border-red-500 flex items-center justify-center font-friends text-red-600 text-2xl animate-danger-pulse shadow-md shadow-red-200";
+            this.sound.playTick();
+          }
+
+          if (this.timerSeconds <= 0) {
+            clearInterval(this.timerInterval);
+            this.handleTimeout();
+          }
+        }, 1000);
+      }
+
+      handleTimeout() {
+        if (this.hasAnswered) return;
+        this.hasAnswered = true;
+        this.sound.playBoop();
+        this.revealAnswers(null, false, true);
+      }
+
+      handleAnswer(isCorrect, clickedBtn, choices) {
+        if (this.hasAnswered) return;
+        this.hasAnswered = true;
+        clearInterval(this.timerInterval);
+
+        if (isCorrect) {
+          this.sound.playSparkle();
+          if (typeof confetti === 'function') {
+            confetti({
+              particleCount: 80,
+              spread: 80,
+              colors: ['#f472b6', '#2dd4bf', '#a855f7', '#facc15'],
+              origin: { y: 0.65 },
+              shapes: ['circle', 'square']
+            });
+          }
+
+          if (this.gameMode === 'solo') {
+            this.soloScore++;
+            document.getElementById('soloScore').innerText = this.soloScore;
+          } else {
+            if (this.currentTurn === 'teamA') {
+              this.teamAScore++;
+            } else {
+              this.teamBScore++;
+            }
+          }
+        } else {
+          this.sound.playBoop();
+        }
+
+        this.revealAnswers(clickedBtn, isCorrect, false);
+      }
+
+      revealAnswers(clickedBtn, isCorrect, isTimeout) {
+        const q = this.activeQuestions[this.currentIndex];
+        const correctText = q.options[q.correct];
+        const buttons = document.querySelectorAll('#optionsGrid button');
+
+        buttons.forEach(btn => {
+          btn.disabled = true;
+          const text = btn.querySelector('.font-bold').innerText;
+          const icon = btn.querySelector('.option-icon');
+
+          if (text === correctText) {
+            btn.className = "w-full p-4 md:p-5 rounded-2xl bg-green-50 border-2 border-green-400 text-left flex items-center justify-between shadow-sm transform scale-[1.02] transition-transform";
+            icon.innerHTML = `<span class="text-green-500 font-black text-2xl">✓</span>`;
+            icon.classList.remove('opacity-0');
+          } else if (btn === clickedBtn && !isCorrect) {
+            btn.className = "w-full p-4 md:p-5 rounded-2xl bg-red-50 border-2 border-red-400 text-left flex items-center justify-between shadow-sm";
+            icon.innerHTML = `<span class="text-red-500 font-black text-2xl">✕</span>`;
+            icon.classList.remove('opacity-0');
+          } else {
+            btn.className = "w-full p-4 md:p-5 rounded-2xl bg-slate-50 border-2 border-slate-200 text-left opacity-50 flex items-center justify-between";
+          }
+        });
+
+        const feedbackContainer = document.getElementById('feedbackContainer');
+        const feedbackTitle = document.getElementById('feedbackTitle');
+        const feedbackExplanation = document.getElementById('feedbackExplanation');
+
+        feedbackContainer.classList.remove('hidden');
+
+        if (isTimeout) {
+          feedbackContainer.className = "mt-8 p-5 rounded-2xl border-2 border-orange-200 bg-orange-50 text-left space-y-3";
+          feedbackTitle.innerText = "⏳ TEMPS ÉCOULÉ !";
+          feedbackTitle.className = "font-friends text-2xl text-orange-600";
+        } else if (isCorrect) {
+          feedbackContainer.className = "mt-8 p-5 rounded-2xl border-2 border-green-200 bg-green-50 text-left space-y-3";
+          feedbackTitle.innerText = "✨ EXCELLENT !";
+          feedbackTitle.className = "font-friends text-2xl text-green-600";
+        } else {
+          feedbackContainer.className = "mt-8 p-5 rounded-2xl border-2 border-red-200 bg-red-50 text-left space-y-3";
+          feedbackTitle.innerText = "Oops ! PRESQUE !";
+          feedbackTitle.className = "font-friends text-2xl text-red-500";
+        }
+
+        feedbackExplanation.innerText = q.explanation || "L'important c'est de participer et de s'amuser !";
+        
+        if (this.gameMode === 'duel') {
+          this.updateDuelHeader();
+        }
+      }
+
+      nextQuestion() {
+        this.currentIndex++;
+        if (this.currentIndex < this.activeQuestions.length) {
+          if (this.gameMode === 'duel') {
+            this.currentTurn = (this.currentTurn === 'teamA') ? 'teamB' : 'teamA';
+            this.updateDuelHeader();
+          }
+          this.loadQuestion();
+        } else {
+          this.showResults();
+        }
+      }
+
+      showResults() {
+        this.showScreen('results');
+
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 200,
+            spread: 120,
+            colors: ['#f472b6', '#2dd4bf', '#a855f7', '#facc15', '#ffffff'],
+            origin: { y: 0.3 },
+            shapes: ['circle']
+          });
+        }
+
+        const mottos = [
+          "L'amitié est la plus grande des forces. Excellente journée sur le floor !",
+          "À Heartlake City ou en magasin, l'important c'est de partager ses passions.",
+          "Chaque client a une histoire à raconter, soyez à l'écoute comme Aliya ou Autumn !",
+          "Mettez de la couleur et de la joie dans vos ventes aujourd'hui !"
+        ];
+        document.getElementById('dailyMotto').innerText = mottos[Math.floor(Math.random() * mottos.length)];
+
+        if (this.gameMode === 'solo') {
+          document.getElementById('soloScoreDisplay').classList.remove('hidden');
+          document.getElementById('duelScoreDisplay').classList.add('hidden');
+
+          const finalScore = this.soloScore;
+          const total = this.activeQuestions.length;
+          document.getElementById('finalScoreVal').innerText = `${finalScore} / ${total}`;
+
+          let rank = "";
+          let icon = "🏆";
+          const ratio = finalScore / total;
+
+          if (ratio === 1) {
+            rank = "Maire de Heartlake City";
+            icon = "👑";
+          } else if (ratio >= 0.75) {
+            rank = "Vétérinaire en chef";
+            icon = "🐶";
+          } else if (ratio >= 0.5) {
+            rank = "Habitué du Café Central";
+            icon = "☕";
+          } else {
+            rank = "Nouveau Résident";
+            icon = "👋";
+          }
+
+          document.getElementById('rankTitleBadge').innerText = `RANG : ${rank}`;
+          document.getElementById('resultTrophyIcon').innerText = icon;
+          
+          this.saveScoreToLocal({ mode: 'solo', name: this.playerName, score: finalScore, total: total, rank: rank });
+        } else {
+          document.getElementById('soloScoreDisplay').classList.add('hidden');
+          document.getElementById('duelScoreDisplay').classList.remove('hidden');
+
+          document.getElementById('finalUiTeamAName').innerText = this.teamAName;
+          document.getElementById('finalUiTeamBName').innerText = this.teamBName;
+          document.getElementById('finalTeamAScore').innerText = this.teamAScore;
+          document.getElementById('finalTeamBScore').innerText = this.teamBScore;
+
+          const duelWinnerText = document.getElementById('duelWinnerText');
+          let winner = "";
+          if (this.teamAScore > this.teamBScore) {
+            duelWinnerText.innerHTML = `✨ L'ÉQUIPE <span class='text-pink-200 font-bold uppercase'>${this.teamAName}</span> L'EMPORTE !`;
+            document.getElementById('resultTrophyIcon').innerText = "🌟";
+            winner = this.teamAName;
+          } else if (this.teamBScore > this.teamAScore) {
+            duelWinnerText.innerHTML = `✨ L'ÉQUIPE <span class='text-teal-200 font-bold uppercase'>${this.teamBName}</span> L'EMPORTE !`;
+            document.getElementById('resultTrophyIcon').innerText = "🦋";
+            winner = this.teamBName;
+          } else {
+            duelWinnerText.innerHTML = "🤝 TOUT LE MONDE GAGNE, C'EST UNE ÉGALITÉ !";
+            document.getElementById('resultTrophyIcon').innerText = "💖";
+            winner = "Égalité";
+          }
+          
+          this.saveScoreToLocal({ 
+            mode: 'duel', 
+            teamA: this.teamAName, scoreA: this.teamAScore,
+            teamB: this.teamBName, scoreB: this.teamBScore,
+            winner: winner, total: this.activeQuestions.length
+          });
+        }
+      }
+
+      // CLÉ FRIENDS POUR SAUVEGARDER LES SCORES SÉPARÉMENT
+      saveScoreToLocal(data) {
+        data.date = new Date().toISOString();
+        let scores = JSON.parse(localStorage.getItem('legoFriendsQuizScores')) || [];
+        scores.push(data);
+        localStorage.setItem('legoFriendsQuizScores', JSON.stringify(scores));
+      }
+      
+      showLeaderboard() {
+        this.showScreen('leaderboard');
+        this.renderLeaderboardList('solo');
+      }
+      
+      renderLeaderboardList(filterMode) {
+        const tabSolo = document.getElementById('tabSolo');
+        const tabDuel = document.getElementById('tabDuel');
+        if (filterMode === 'solo') {
+          tabSolo.className = "text-pink-500 border-b-4 border-pink-500 px-4 py-2 transition rounded-t-lg bg-pink-50";
+          tabDuel.className = "text-slate-500 hover:text-slate-800 px-4 py-2 transition rounded-t-lg hover:bg-slate-50";
+        } else {
+          tabDuel.className = "text-pink-500 border-b-4 border-pink-500 px-4 py-2 transition rounded-t-lg bg-pink-50";
+          tabSolo.className = "text-slate-500 hover:text-slate-800 px-4 py-2 transition rounded-t-lg hover:bg-slate-50";
+        }
+        
+        const listContainer = document.getElementById('leaderboardList');
+        listContainer.innerHTML = '';
+        
+        let scores = JSON.parse(localStorage.getItem('legoFriendsQuizScores')) || [];
+        let filteredScores = scores.filter(s => s.mode === filterMode);
+        
+        if (filteredScores.length === 0) {
+          listContainer.innerHTML = `<div class="text-center py-12 text-slate-400 italic text-base">Aucun score enregistré. Soyez les premiers à jouer !</div>`;
+          return;
+        }
+        
+        if (filterMode === 'solo') {
+          filteredScores.sort((a, b) => {
+            const ratioA = a.score / a.total;
+            const ratioB = b.score / b.total;
+            if (ratioB !== ratioA) return ratioB - ratioA;
+            return new Date(b.date) - new Date(a.date);
+          });
+          
+          filteredScores.forEach((s, idx) => {
+            const date = new Date(s.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit' }).replace(':', 'h');
+            const ratio = Math.round((s.score / s.total) * 100);
+            listContainer.innerHTML += `
+              <div class="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200 hover:border-pink-200 hover:shadow-md transition shadow-sm">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 text-center font-bold font-friends ${idx === 0 ? 'text-yellow-500 text-3xl' : (idx === 1 ? 'text-slate-300 text-2xl' : (idx === 2 ? 'text-amber-700 text-2xl' : 'text-slate-400 text-xl'))}">
+                    #${idx + 1}
+                  </div>
+                  <div>
+                    <div class="font-friends text-slate-800 text-xl tracking-wide">${s.name}</div>
+                    <div class="text-xs text-slate-500">${date} - <span class="italic text-purple-500 font-bold">${s.rank}</span></div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="font-bold text-pink-500 font-friends text-3xl leading-none">${s.score} <span class="text-sm text-slate-400 font-sans">/ ${s.total}</span></div>
+                  <div class="text-[10px] uppercase font-extrabold text-teal-500 mt-1">${ratio}% de réussite</div>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          filteredScores.sort((a, b) => new Date(b.date) - new Date(a.date));
+          
+          filteredScores.forEach((s, idx) => {
+            const date = new Date(s.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit' }).replace(':', 'h');
+            listContainer.innerHTML += `
+              <div class="p-5 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-sm">
+                <div class="flex justify-between items-center text-xs text-slate-500 font-bold border-b border-slate-100 pb-2">
+                  <span>Partie du ${date}</span>
+                  <span class="px-2.5 py-1 rounded-lg ${s.winner === 'Égalité' ? 'bg-slate-100 text-slate-600' : 'bg-pink-100 text-pink-600'} uppercase font-friends tracking-wide">Vainqueur : ${s.winner}</span>
+                </div>
+                <div class="flex items-stretch justify-between gap-4">
+                  <div class="flex-1 text-center bg-pink-50 rounded-xl py-3 border-2 border-pink-100 flex flex-col justify-center">
+                    <span class="block text-sm font-friends uppercase text-pink-500 truncate px-2" title="${s.teamA}">${s.teamA}</span>
+                    <span class="text-4xl font-friends text-slate-700 leading-none mt-1">${s.scoreA} <span class="text-sm text-slate-400 font-sans">/ ${s.total}</span></span>
+                  </div>
+                  <div class="flex items-center px-2 font-friends text-slate-300 text-2xl">VS</div>
+                  <div class="flex-1 text-center bg-teal-50 rounded-xl py-3 border-2 border-teal-100 flex flex-col justify-center">
+                    <span class="block text-sm font-friends uppercase text-teal-600 truncate px-2" title="${s.teamB}">${s.teamB}</span>
+                    <span class="text-4xl font-friends text-slate-700 leading-none mt-1">${s.scoreB} <span class="text-sm text-slate-400 font-sans">/ ${s.total}</span></span>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+      }
+      
+      clearLeaderboard() {
+        if (confirm("Voulez-vous vraiment effacer tous les scores de Heartlake City ?")) {
+          localStorage.removeItem('legoFriendsQuizScores');
+          this.renderLeaderboardList('solo');
+        }
+      }
+
+      openCustomModal() {
+        document.getElementById('customModal').classList.remove('hidden');
+      }
+
+      closeCustomModal() {
+        document.getElementById('customModal').classList.add('hidden');
+        document.getElementById('addQuestionForm').reset();
+      }
+
+      handleCustomQuestionSubmit(e) {
+        e.preventDefault();
+        const text = document.getElementById('custQText').value.trim();
+        const correct = document.getElementById('custQCorrect').value.trim();
+        const wrong1 = document.getElementById('custQWrong1').value.trim();
+        const wrong2 = document.getElementById('custQWrong2').value.trim();
+        const wrong3 = document.getElementById('custQWrong3').value.trim();
+        const expl = document.getElementById('custQExpl').value.trim() || "Information exclusive de notre magasin !";
+
+        if (!text || !correct || !wrong1) return;
+
+        this.questionsPool.unshift({
+          question: text,
+          options: [correct, wrong1, wrong2 || "Le Maire de la ville", wrong3 || "Un dauphin"],
+          correct: 0,
+          category: "Secret du Magasin",
+          explanation: expl
+        });
+
+        this.initUI();
+        this.closeCustomModal();
+        this.sound.playSparkle();
+      }
+    }
+
+    const initApp = () => {
+      if (!window.app) {
+        window.app = new QuizApp();
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
